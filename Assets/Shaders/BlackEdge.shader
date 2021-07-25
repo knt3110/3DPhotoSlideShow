@@ -3,8 +3,13 @@ Shader "Custom/BlackEdge"
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-        _OutlineWidth ("Outline Width", float) = 0.1
-        _OutlineColor ("Oitline Color", Color) = (0, 0, 0, 1)
+        _OutlineThresholdX ("Outline Threshold X", float) = 0.072
+        _OutlineThresholdY ("Outline Threshold Y", float) = 0.108
+        _CullingThresholdX ("Culling Threshold X", float) = 0.06
+        _CullingThresholdY ("Culling Threshold Y", float) = 0.09
+        _AntiAliasingWidth ("Anti-Aliasing Width", float) = 0.01
+        _OutlineColor ("Oitline Color", Color) = (0.1, 0.1, 0.1, 1)
+        
     }
     SubShader
     {
@@ -35,6 +40,11 @@ Shader "Custom/BlackEdge"
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
+            float _OutlineThresholdX;
+            float _OutlineThresholdY;
+            float _CullingThresholdX;
+            float _CullingThresholdY;
+            float _AntiAliasingWidth;
             float4 _OutlineColor;
 
             v2f vert (appdata v)
@@ -48,29 +58,31 @@ Shader "Custom/BlackEdge"
             fixed4 frag (v2f i) : SV_Target
             {
                 // 縁の内側の写真を動かす
-                fixed4 col = tex2D(_MainTex, i.uv + float2(_Time.x, _Time.x) * 0.15);
+                fixed4 col = tex2D(_MainTex, i.uv + float2(sin(_Time.x * 3.14 * 4), sin(_Time.x * 3.14 * 4)) * 0.05);
                 
                 // 内側のジャギーを解消
-                if (i.uv.y < 0.13 || i.uv.y > 1 - 0.13)
+                float innerAntiAliasingThreshold = _OutlineThresholdY + _AntiAliasingWidth;
+                if (i.uv.y < innerAntiAliasingThreshold || i.uv.y > 1 - innerAntiAliasingThreshold)
                 {
-                    col = _OutlineColor * (abs(i.uv.y - 0.5) - 0.37) / 0.01 + col * (0.01 - (abs(i.uv.y - 0.5) - 0.37)) / 0.01;
+                    col = _OutlineColor * (abs(i.uv.y - 0.5) - (0.5 - innerAntiAliasingThreshold)) / _AntiAliasingWidth + col * (_AntiAliasingWidth - (abs(i.uv.y - 0.5) - (0.5 - innerAntiAliasingThreshold))) / _AntiAliasingWidth;
                 }
 
                 // 縁をつける
-                if (i.uv.x < 0.08 || i.uv.x > 1 - 0.08 || i.uv.y < 0.12 || i.uv.y > 1 - 0.12)
+                if (i.uv.x < _OutlineThresholdX || i.uv.x > 1 - _OutlineThresholdX || i.uv.y < _OutlineThresholdY || i.uv.y > 1 - _OutlineThresholdY)
                 {
                     col = _OutlineColor;
                 }
                 
                 // 外側のジャギーを解消
-                if (i.uv.y < 0.1 || i.uv.y > 1 - 0.1)
+                float outerAntiAliasingThreshold = _CullingThresholdY + _AntiAliasingWidth;
+                if (i.uv.y < outerAntiAliasingThreshold || i.uv.y > 1 - outerAntiAliasingThreshold)
                 {
-                    float alpha = (0.01 - (abs(i.uv.y - 0.5) - 0.4)) / 0.01;
+                    float alpha = (_AntiAliasingWidth - (abs(i.uv.y - 0.5) - (0.5 - outerAntiAliasingThreshold))) / _AntiAliasingWidth;
                     col.a = alpha;
                 }
 
                 // 縁の内側で写真を動かす余裕を持たせるために外側を少しカリング
-                if (i.uv.x < 0.06 || i.uv.x > 1 - 0.06 || i.uv.y < 0.09 || i.uv.y > 1 - 0.09)
+                if (i.uv.x < _CullingThresholdX || i.uv.x > 1 - _CullingThresholdX || i.uv.y < _CullingThresholdY || i.uv.y > 1 - _CullingThresholdY)
                 {
                     clip(-1);
                 }

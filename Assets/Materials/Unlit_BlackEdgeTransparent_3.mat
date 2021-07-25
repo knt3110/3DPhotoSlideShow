@@ -20,10 +20,15 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 827aeace0df9a4dbe89c912da15c7646, type: 3}
+        m_Texture: {fileID: 2800000, guid: b6b321b5adef94c9eaa3b29ba45c5a78, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
+    - _AntiAliasingWidth: 0.01
+    - _CullingThresholdX: 0.06
+    - _CullingThresholdY: 0.09
+    - _OutlineThresholdX: 0.072
+    - _OutlineThresholdY: 0.108
     - _OutlineWidth: 0.1
     m_Colors:
     - _OutlineColor: {r: 0, g: 0, b: 0, a: 0}

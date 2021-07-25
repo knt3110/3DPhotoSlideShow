@@ -24,6 +24,11 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
+    - _AntiAliasingWidth: 0.01
+    - _CullingThresholdX: 0.06
+    - _CullingThresholdY: 0.09
+    - _OutlineThresholdX: 0.072
+    - _OutlineThresholdY: 0.108
     - _OutlineWidth: 0.1
     m_Colors:
     - _OutlineColor: {r: 0, g: 0, b: 0, a: 0}
